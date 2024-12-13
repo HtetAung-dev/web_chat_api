@@ -29,24 +29,25 @@ class ChatroomService{
     }
   }
 
-  async createChatroom(chatroom: Chatroom, senderId: number, receiverId: number): Promise<ChatRoomUserType[]> {
+  async createChatroom(chatroom: Chatroom, senderId: number, receiverId: number): Promise<object> {
     try {
+      var roomUser: object = []
       const newChatroom: Chatroom = await chatroomRepository.createChatroom(chatroom);
-      if(newChatroom){
+      if(!newChatroom){
+        throw new Error("Error in joining Chatroom.");
+      }
+
         const chatroomUsers: ChatroomUsers[] = [
           new ChatroomUsers(newChatroom.id!, senderId, 'admin', new Date(), new Date()),
           new ChatroomUsers(newChatroom.id!, receiverId, 'member', new Date(), new Date()),
         ];
         const joinedChat = await chatroomRepository.addUsersToChatroom(chatroomUsers)
-        if(joinedChat){
-          console.log("chatroom created successfully")
-          const chatroom = await chatroomRepository.getChatroomUsersById(newChatroom.id!)
-          return chatroom;
-
-        } else {
-          throw new Error("Error in joining Chatroom.");
+        if(!joinedChat){
+          console.log("chatroom created successfully");
+          throw new Error("Error in joining Chatroom.");        
         }
-      }
+         roomUser = await chatroomRepository.getChatroomUsersById(newChatroom.id!)
+          return roomUser;
     } catch (e) {
       throw new Error("Error in creating Chatroom. Error: " + e);
     }

@@ -31,7 +31,7 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
           createdAt : new Date(),
           updatedAt : new Date()
         }
-        const result = await chatroomSocket.createChatroom(socket, chatroom, senderId, memberId);
+        const result = await chatroomSocket.createOrGetPrivateChat(socket, chatroom, senderId, memberId);
       } catch (error) {
         console.log(error);
         throw Error();

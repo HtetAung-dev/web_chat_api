@@ -16,9 +16,9 @@ class MessageSocket{
         socket.send(JSON.stringify({ status: true, message: "GETROOMBYUSER", data: chatrooms }));
     }
 
-    async createChatroom(socket: Socket, chatroomData: ChatroomType, senderId: number, receiverId: number): Promise<void> {
+    async createOrGetPrivateChat(socket: Socket, chatroomData: ChatroomType, senderId: number, receiverId: number): Promise<void> {
         const chatroom = await chatroomService.createChatroom(chatroomData, senderId, receiverId);
-        socket.send(JSON.stringify({ status: true, message: "CREATECHATROOM", data: chatroom }));
+        socket.to("get-chatroom").emit(JSON.stringify({ status: true, message: "chatroom", data: chatroom }));
     }
 
 
