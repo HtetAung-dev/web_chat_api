@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 
-dotenv.config({ path: path.resolve(__dirname, "../../config/chat/dev.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../config/chat.dev.env") });
 
 const config = {
   digitalOcean: {
@@ -9,7 +9,7 @@ const config = {
       postgreSql: {
         databaseUrl: process.env.POSTGRES_URL,
         host: process.env.POSTGRES_HOST,
-        user: process.env.POSTGERS_USER,
+        user: process.env.POSTGRES_USER,
         password: process.env.POSTGRES_PASSWORD,
         database: process.env.POSTGRES_DB,
         port: process.env.POSTGRES_PORT,
@@ -39,7 +39,7 @@ const config = {
       postgreSql: {
         databaseUrl: process.env.POSTGRES_URL,
         host: process.env.POSTGRES_HOST,
-        user: process.env.POSTGERS_USER,
+        user: process.env.POSTGRES_USER,
         password: process.env.POSTGRES_PASSWORD,
         database: process.env.POSTGRES_DB,
         port: process.env.POSTGRES_PORT,

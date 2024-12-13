@@ -2,6 +2,7 @@
 import { UserType } from "./types/userType";
 import { postgresDb } from "../../db/drizzle";
 import { usersTable } from "../../db/schema";
+import { eq } from "drizzle-orm";
 
 class UserRepository {
   async getUsers(): Promise<UserType[]> {
@@ -22,6 +23,13 @@ class UserRepository {
       .returning();
     return result[0];
   }
+
+  async getUserById(userId: number): Promise<UserType | null> {
+    const result = await postgresDb.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1); 
+    return result.length > 0 ? result[0] : null;
+  }
+  
 }
 
 export default new UserRepository();
+
