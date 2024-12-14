@@ -9,6 +9,7 @@ import {
     integer,
     pgEnum,
     boolean,
+    jsonb,
   } from "drizzle-orm/pg-core";
 import { ContentType } from "../../modules/message/types/contentType";
 import { FlagType } from "../../modules/message/types/flagType";
@@ -23,7 +24,7 @@ import { FlagType } from "../../modules/message/types/flagType";
       message_type: varchar("message_type", {length: 25}).$type<ContentType>().default('text').notNull(),
       createdAt: timestamp("created_at").notNull().defaultNow(),
       isRead: boolean("isRead").default(false).notNull(),
-      flags: varchar("flags", {length: 25}).$type<FlagType>().default('normal').notNull(),
+      flags: jsonb("flags").$type<{ isPinned: boolean, isEdited: boolean, isDeleted: boolean}>().notNull(),
     },
     (table) => ({
     })

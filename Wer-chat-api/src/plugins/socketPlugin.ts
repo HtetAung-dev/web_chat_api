@@ -1,5 +1,5 @@
 // plugins/socket.ts
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { FastifyPluginCallback } from 'fastify';
 
 declare module 'fastify' {

@@ -10,7 +10,11 @@ export class Message implements MessageType {
   public message_type: ContentType;
   public createdAt: string | Date;
   public isRead: boolean;
-  public flags: FlagType;
+  public flags: {
+    isPinned: boolean,
+    isEdited: boolean,
+    isDeleted: boolean
+  };
 
   constructor(
     room_id: number,
@@ -18,7 +22,11 @@ export class Message implements MessageType {
     message_content: string,
     message_type: ContentType,
     createdAt: string | Date,
-    flags: FlagType,
+    flags: {
+      isPinned: boolean,
+      isEdited: boolean,
+      isDeleted: boolean
+    },
     isRead: boolean,
     id?: number
   ) {

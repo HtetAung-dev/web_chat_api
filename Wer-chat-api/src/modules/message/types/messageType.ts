@@ -9,6 +9,10 @@ export type MessageType = {
     message_type: ContentType;
     createdAt: string | Date;
     isRead: boolean;
-    flags: FlagType;
+    flags: {
+      isPinned: boolean,
+      isEdited: boolean,
+      isDeleted: boolean
+    };
   };
   

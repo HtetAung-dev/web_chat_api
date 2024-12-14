@@ -4,10 +4,10 @@ import {
   text,
   timestamp,
   uniqueIndex,
-  varchar,
   index,
   pgEnum,
   integer,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { PermissionType } from "../../modules/chatroom/types/permissionType";
 

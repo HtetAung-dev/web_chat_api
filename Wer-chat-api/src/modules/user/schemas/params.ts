@@ -1,10 +1,10 @@
 const getUserQuerySchema = {
   type: "object",
-  description: "Get user by credential.",
+  description: "Get user by id.",
   properties: {
-    credential: { type: "string" },
+    id: { type: "number" },
   },
-  required: ["credential"],
+  required: ["id"],
 };
 
 export { getUserQuerySchema };

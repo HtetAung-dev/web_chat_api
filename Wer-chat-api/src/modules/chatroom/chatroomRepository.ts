@@ -1,4 +1,4 @@
-import { and, eq, or } from "drizzle-orm";
+import { and, count, eq, inArray, or } from "drizzle-orm";
 import { ChatroomType } from "./types/chatroomType";
 import { postgresDb } from "../../db/drizzle";
 import { chatroomTable, chatRoomUsersTable, usersTable } from "../../db/schema";
@@ -13,9 +13,31 @@ class ChatroomRepository {
     return postgresDb.select().from(chatroomTable);
   }
 
-  async getChatroomUsersById(roomId: number): Promise<object> {
-    const result: object = await postgresDb
+  async checkExistChat(senderId: number, receiverId: number): Promise<any> {
+    const existingChatroom = await postgresDb
+      .select({ chatroom_id: chatRoomUsersTable.chatroom_id })
+      .from(chatRoomUsersTable)
+      .innerJoin(
+        chatroomTable,
+        eq(chatroomTable.id, chatRoomUsersTable.chatroom_id)
+      )
+      .where(
+        and(
+          eq(chatroomTable.type, "private"), // Check for private chatrooms
+          inArray(chatRoomUsersTable.user_id, [senderId, receiverId]) // Check if both users exist in the chatroom
+        )
+      )
+      .groupBy(chatRoomUsersTable.chatroom_id) // Group by chatroom ID
+      //.having(count(chatRoomUsersTable.user_id)) // Ensure both users exist in the chatroom
+      .limit(1);
+
+    return existingChatroom.length > 0 ? existingChatroom[0] : null;
+  }
+
+  async getChatroomUsersById(roomId: number): Promise<any> {
+    const result: any = await postgresDb
       .select({
+        chatroom_id: chatroomTable.id,
         roomName: chatroomTable.name,
         user: usersTable.name,
         email: usersTable.email,
@@ -24,7 +46,7 @@ class ChatroomRepository {
         updatedAt: chatRoomUsersTable.updatedAt,
       })
       .from(chatRoomUsersTable)
-      .innerJoin(chatroomTable, eq(chatroomTable.id, chatRoomUsersTable))
+      .innerJoin(chatroomTable, eq(chatroomTable.id, chatRoomUsersTable.chatroom_id))
       .innerJoin(usersTable, eq(chatRoomUsersTable.user_id, usersTable.id))
       .where(and(eq(chatRoomUsersTable.chatroom_id, roomId)));
     return result;

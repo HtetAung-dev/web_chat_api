@@ -4,8 +4,8 @@ import { postgresDb } from "../../db/drizzle";
 import { messageTable } from "../../db/schema";
 
 class MessageRepository {
-  async getChatroomMessage(chatroomId: number): Promise<MessageType[]> {
-    return postgresDb.select().from(messageTable).where(eq(messageTable.room_id, chatroomId));
+  async getChatroomMessage(chatroomId: number, limit: number, offset: number): Promise<MessageType[]> {
+    return postgresDb.select().from(messageTable).where(eq(messageTable.room_id, chatroomId)).limit(limit).offset(offset);
   }
 
   async createMessage(message: MessageType): Promise<MessageType> {

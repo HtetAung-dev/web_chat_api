@@ -5,6 +5,7 @@ import { ChatroomType } from "./types/chatroomType";
 import { FastifyReply } from "fastify";
 import { ChatroomUsers } from "./models/chatroomUsers";
 import { Chatroom } from "./models/chatroom";
+import { RoomTypes } from "./types/roomTypes";
 
 class ChatroomService{
   async getChatroomByUser(userId: number): Promise<any> {
@@ -29,17 +30,27 @@ class ChatroomService{
     }
   }
 
-  async createChatroom(chatroom: Chatroom, senderId: number, receiverId: number): Promise<object> {
+  async getOrCreatePrivateChat(senderId: number, receiverId: number): Promise<any> {
     try {
+      const currentChatroom = await chatroomRepository.checkExistChat(senderId, receiverId);
+      if (currentChatroom) {
+        return currentChatroom;
+      }
+      const roomData: ChatroomType = {
+        name: `${senderId}-${receiverId}`,
+        type: 'private',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
       var roomUser: object = []
-      const newChatroom: Chatroom = await chatroomRepository.createChatroom(chatroom);
+      const newChatroom: Chatroom = await chatroomRepository.createChatroom(roomData);
       if(!newChatroom){
         throw new Error("Error in joining Chatroom.");
       }
 
         const chatroomUsers: ChatroomUsers[] = [
           new ChatroomUsers(newChatroom.id!, senderId, 'admin', new Date(), new Date()),
-          new ChatroomUsers(newChatroom.id!, receiverId, 'member', new Date(), new Date()),
+          new ChatroomUsers(newChatroom.id!, receiverId, 'admin', new Date(), new Date()),
         ];
         const joinedChat = await chatroomRepository.addUsersToChatroom(chatroomUsers)
         if(!joinedChat){
@@ -51,6 +62,7 @@ class ChatroomService{
     } catch (e) {
       throw new Error("Error in creating Chatroom. Error: " + e);
     }
+    
   }
 }
 

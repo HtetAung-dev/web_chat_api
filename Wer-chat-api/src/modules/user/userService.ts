@@ -13,6 +13,20 @@ class UserService {
     }
   }
 
+  async getUserById(id: number): Promise<User>{
+    try {
+      const user : UserType | null = await UserRepository.getUserById(id);
+      if(user){
+        return User.fromUserType(user);
+      } else {
+        throw new Error("User not found");
+      }
+      
+    } catch (error) {
+      throw new Error("Error in getting user. Error: " + error);
+    }
+  }
+
   async createUser(user: User): Promise<User> {
     try {
       const newUser: UserType = await UserRepository.createUser(user);

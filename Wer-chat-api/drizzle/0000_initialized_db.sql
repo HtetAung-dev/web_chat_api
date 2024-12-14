@@ -32,8 +32,8 @@ CREATE TABLE "message" (
 	"message_content" text NOT NULL,
 	"message_type" varchar(25) DEFAULT 'text' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"isRead" boolean DEFAULT false,
-	"flags" varchar(25)
+	"isRead" boolean DEFAULT false NOT NULL,
+	"flags" jsonb NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX "email_idx" ON "users" USING btree ("email");--> statement-breakpoint

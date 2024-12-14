@@ -1,5 +1,5 @@
 {
-  "id": "316537f8-fb95-4e6c-a51b-476cea61cf29",
+  "id": "ebdb8e26-d77b-47d9-aaaf-cf0dc4c8a39a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -237,14 +237,14 @@
           "name": "isRead",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": false
         },
         "flags": {
           "name": "flags",
-          "type": "varchar(25)",
+          "type": "jsonb",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
