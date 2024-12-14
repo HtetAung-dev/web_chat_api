@@ -1,11 +1,11 @@
-import { and, eq, or } from 'drizzle-orm';
+import { and, desc, eq, or } from 'drizzle-orm';
 import { MessageType } from './types/messageType';
 import { postgresDb } from "../../db/drizzle";
 import { messageTable } from "../../db/schema";
 
 class MessageRepository {
-  async getChatroomMessage(chatroomId: number, limit: number, offset: number): Promise<MessageType[]> {
-    return postgresDb.select().from(messageTable).where(eq(messageTable.room_id, chatroomId)).limit(limit).offset(offset);
+  async getChatroomMessage(chatroomId: number, limit: number, page: number): Promise<MessageType[]> {
+    return await postgresDb.select().from(messageTable).where(eq(messageTable.room_id, Number.parseInt(chatroomId.toString()))).orderBy(desc(messageTable.createdAt)).offset((page -1 ) * limit).limit(Number.parseInt(limit.toString()));
   }
 
   async createMessage(message: MessageType): Promise<MessageType> {

@@ -5,17 +5,17 @@ import messageService from "./messageService";
 class UserController {
   async getChatroomMessages(
     request: FastifyRequest<{
-      Querystring: { roomId: number; limit: number; offset: number };
+      Querystring: { roomId: number; limit: number; page: number };
     }>,
     reply: FastifyReply
   ): Promise<void> {
     const roomId: number = request.query.roomId;
     const limit: number = request.query.limit;
-    const offset: number = request.query.offset;
+    const page: number = request.query.page;
     const messages: MessageType[] = await messageService.getChatroomMessage(
       roomId,
       limit,
-      offset
+      page
     );
     return reply.status(200).send({
       status: true,
