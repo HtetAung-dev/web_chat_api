@@ -1,7 +1,7 @@
-import { and, count, eq, inArray, or } from "drizzle-orm";
+import { and, count, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { ChatroomType } from "./types/chatroomType";
 import { postgresDb } from "../../db/drizzle";
-import { chatroomTable, chatRoomUsersTable, usersTable } from "../../db/schema";
+import { chatroomTable, chatRoomUsersTable, messageTable, usersTable } from "../../db/schema";
 import { ChatRoomUserType } from "./types/chatRoomUserType";
 import { PermissionType } from "./types/permissionType";
 import { RoomUserCreate } from "./types/roomUserCreate";
@@ -28,7 +28,7 @@ class ChatroomRepository {
         )
       )
       .groupBy(chatRoomUsersTable.chatroom_id) // Group by chatroom ID
-      //.having(count(chatRoomUsersTable.user_id)) // Ensure both users exist in the chatroom
+      .having(eq(sql<number>`COUNT(DISTINCT ${chatRoomUsersTable.user_id})`, 2)) // Ensure both users exist in the chatroom
       .limit(1);
 
     return existingChatroom.length > 0 ? existingChatroom[0] : null;
@@ -46,10 +46,13 @@ class ChatroomRepository {
         updatedAt: chatRoomUsersTable.updatedAt,
       })
       .from(chatRoomUsersTable)
-      .innerJoin(chatroomTable, eq(chatroomTable.id, chatRoomUsersTable.chatroom_id))
+      .innerJoin(
+        chatroomTable,
+        eq(chatroomTable.id, chatRoomUsersTable.chatroom_id)
+      )
       .innerJoin(usersTable, eq(chatRoomUsersTable.user_id, usersTable.id))
       .where(and(eq(chatRoomUsersTable.chatroom_id, roomId)));
-    return result;
+    return result[0];
   }
 
   async createChatroom(chatroom: ChatroomType): Promise<ChatroomType> {
@@ -106,6 +109,51 @@ class ChatroomRepository {
       .from(chatRoomUsersTable)
       .where(eq(chatRoomUsersTable.user_id, userId));
     return result;
+  }
+
+  async getUserChatrooms(userId: number, limit: number, page: number ): Promise<any> {
+    const chatrooms = await postgresDb
+      .select({
+        chatroom_id: chatroomTable.id,
+        name: chatroomTable.name,
+        chatroomType: chatroomTable.type,
+        lastMessage: messageTable.message_content,
+        isRead: messageTable.isRead,
+        lastMessageTime: messageTable.createdAt,
+        otherParticipant: sql<string | null>`
+        CASE 
+          WHEN ${chatroomTable.type} = 'private' THEN (
+            SELECT ${usersTable.name}
+            FROM ${chatRoomUsersTable}
+            JOIN ${usersTable}
+              ON ${chatRoomUsersTable.user_id} = ${usersTable.id}
+            WHERE 
+              ${chatRoomUsersTable.chatroom_id} = ${chatroomTable.id}
+              AND ${chatRoomUsersTable.user_id} != ${userId}
+            LIMIT 1
+          )
+          ELSE NULL
+        END
+      `,
+      })
+      .from(chatroomTable)
+      .leftJoin(
+        messageTable,
+        eq(chatroomTable.id, messageTable.room_id) // Join messages with chatrooms
+      )
+      .where(
+        sql`${chatroomTable.id} IN (
+        SELECT ${chatRoomUsersTable.chatroom_id}
+        FROM ${chatRoomUsersTable}
+        WHERE ${chatRoomUsersTable.user_id} = ${userId}
+      )`
+      )
+      .groupBy(chatroomTable.id, messageTable.id) // Ensure proper aggregation
+      .orderBy(desc(messageTable.createdAt)) // Sort by the last message time
+      .limit(Number.parseInt(limit.toString()))
+      .offset(Number.parseInt(((page-1) * limit).toString()));
+
+    return chatrooms;
   }
 }
 export default new ChatroomRepository();

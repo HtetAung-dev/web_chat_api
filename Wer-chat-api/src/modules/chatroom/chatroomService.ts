@@ -8,10 +8,10 @@ import { Chatroom } from "./models/chatroom";
 import { RoomTypes } from "./types/roomTypes";
 
 class ChatroomService{
-  async getChatroomByUser(userId: number): Promise<any> {
+  async getChatroomByUser(userId: number, limit: number, page: number): Promise<any> {
     try {
-      const chatroom: ChatRoomUserType[] = await chatroomRepository.getChatroomByUser(userId);
-      return chatroom.map(ChatroomUsers.fromChatroomUsersType);
+      const chatroom: any = await chatroomRepository.getUserChatrooms(userId, limit, page);
+      return chatroom;
     } catch (e) {
       throw new Error("Error in getting Chatroom. Error: " + e);
     }

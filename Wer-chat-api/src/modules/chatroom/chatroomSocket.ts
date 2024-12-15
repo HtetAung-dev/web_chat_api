@@ -11,24 +11,24 @@ class ChatroomSocket{
         socket.send(JSON.stringify({ status: true, message: "GETALLCHATROOM", data: message}));
     }
 
-    async getChatroomByUser(socket: Socket, userId: number): Promise<void> {
-        const chatrooms = await chatroomService.getChatroomByUser(userId);
-        socket.send(JSON.stringify({ status: true, message: "GETROOMBYUSER", data: chatrooms }));
-    }
+    // async getChatroomByUser(socket: Socket, userId: number): Promise<void> {
+    //     const chatrooms = await chatroomService.getChatroomByUser(userId);
+    //     socket.send(JSON.stringify({ status: true, message: "GETROOMBYUSER", data: chatrooms }));
+    // }
 
     async createOrGetPrivateChat(socket: Socket, senderId: number, receiverId: number, roomId?:number): Promise<void> {
         const chatroom = await chatroomService.getOrCreatePrivateChat(senderId, receiverId);
         console.log(chatroom)
-        if(!chatroom.roomId){
+        if(!chatroom.chatroom_id){
             socket.emit('error', {status: false, message: 'Failed to create or retrieve chatroom'});
             return;
         }
 
-        const chatroomId = chatroom.roomId.toString();
+        const chatroomId = chatroom.chatroom_id.toString();
 
         socket.join(chatroomId);
         socket.to(chatroomId).emit('private-chatroom', {status: true, message: "Chatroom created or retrieved"});
-        socket.emit("private-chatroom",{ status: true, message: "chatroom created or retrieved", data: chatroom });
+        socket.emit('private-chatroom',{ status: true, message: "chatroom created or retrieved", data: chatroom });
     }
 
 

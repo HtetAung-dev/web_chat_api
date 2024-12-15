@@ -15,7 +15,7 @@ class MessageSocket{
         const message = new Message(roomId, senderId, messageContent, messageType, new Date(), { isPinned: false, isEdited: false, isDeleted: false }, false);
         const newMessage = await messageService.sendMessage(message);
         const room = roomId.toString();
-        
+
         socket.to(room).emit('new-message', newMessage);
     }
 

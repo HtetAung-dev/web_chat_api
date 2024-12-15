@@ -53,7 +53,7 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
     // Send message
     socket.on('send-message', async ({ chatroomId, senderId, type, content }, callback) => {
       try {
-        const message = await messageSocket.sendMessage(socket, chatroomId, senderId, type, content);
+        const message = await messageSocket.sendMessage(socket, chatroomId, senderId, content, type);
         
       } catch (err) {
         fastify.log.error('Error sending message:', err);
