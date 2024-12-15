@@ -31,6 +31,17 @@ class ChatroomSocket{
         socket.emit('private-chatroom',{ status: true, message: "chatroom created or retrieved", data: chatroom });
     }
 
+    async createGroupChat(socket: Socket, name: string, creator: number, member: []): Promise<void> {
+        const newGroupChat = await chatroomService.CreateGroupChat(name, creator, member);
+        if(!newGroupChat.status) {
+            socket.emit('error', {status: false, message: 'Could not create group chat'});
+        }
+        const roomId = newGroupChat.chatroom.id.toString();
+        socket.join(roomId);
+        socket.to(roomId).emit('joined-groupchat', newGroupChat);
+        socket.emit('joined-groupchat', newGroupChat);
+    }
+
 
 }
 

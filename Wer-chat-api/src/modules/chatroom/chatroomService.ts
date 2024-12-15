@@ -36,8 +36,10 @@ class ChatroomService{
       if (currentChatroom) {
         return currentChatroom;
       }
+      const firstUser = await userRepository.getUserById(senderId);
+      const secondUser = await userRepository.getUserById(receiverId);
       const roomData: ChatroomType = {
-        name: `${senderId}-${receiverId}`,
+        name: `${firstUser?.name}-${secondUser?.name}`,
         type: 'private',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -59,6 +61,27 @@ class ChatroomService{
         }
          roomUser = await chatroomRepository.getChatroomUsersById(newChatroom.id!)
           return roomUser;
+    } catch (e) {
+      throw new Error("Error in creating Chatroom. Error: " + e);
+    }
+    
+  }
+
+  async CreateGroupChat(name: string, creator: number, members: []): Promise<any> {
+    try {
+      const groupChat: Chatroom = new Chatroom(name, 'group', new Date(), new Date());
+      const newChatroom = await chatroomRepository.createChatroom(groupChat);
+      if(!newChatroom) throw new Error("chatroom created failed");
+      const chatroomUsers: ChatroomUsers[] = [new ChatroomUsers(newChatroom.id!, creator, 'admin', new Date(), new Date())];
+      members.map((member) => {
+        chatroomUsers.push(new ChatroomUsers(newChatroom.id!, member, 'member', new Date(), new Date()));
+      });
+
+      const joinedMembers = await chatroomRepository.addUsersToChatroom(chatroomUsers);
+      if(!joinedMembers) throw new Error("Error in joining Chatroom members");
+      
+      return {status: true, chatroom: newChatroom, members: joinedMembers};
+      
     } catch (e) {
       throw new Error("Error in creating Chatroom. Error: " + e);
     }

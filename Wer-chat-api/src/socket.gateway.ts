@@ -50,6 +50,14 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
       }
     });
 
+    socket.on('create-groupchat', async({name, creator, members}, callback) => {
+      try {
+        await chatroomSocket.createGroupChat(socket, name, creator, members);
+      } catch (error) {
+        fastify.log.error(error);
+      }
+    })
+
     // Send message
     socket.on('send-message', async ({ chatroomId, senderId, type, content }, callback) => {
       try {
