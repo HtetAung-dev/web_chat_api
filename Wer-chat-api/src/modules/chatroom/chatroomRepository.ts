@@ -146,8 +146,8 @@ class ChatroomRepository {
         lastMessage: messageTable.message_content,
         isRead: messageTable.isRead,
         lastMessageTime: messageTable.createdAt,
-        participants: sql<[]>`
-        ARRAY(
+        participants: sql`
+        (
           
           SELECT JSON_AGG(JSON_BUILD_OBJECT( 'id', ${usersTable.id}, 'name', ${usersTable.name}, 'profile_url', ${usersTable.profile_picture_url} ))
           FROM ${usersTable} 
