@@ -28,6 +28,15 @@ class UserRepository {
     const result = await postgresDb.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1); 
     return result.length > 0 ? result[0] : null;
   }
+
+  async updateUser(userId: number, name: string, profile_picture_url: string) : Promise<UserType | null> {
+    const result: UserType[] | null = await postgresDb.update(usersTable).set({
+      name: name,
+      profile_picture_url: profile_picture_url,
+      updatedAt: new Date()
+    }).where(eq(usersTable.id, Number.parseInt(userId.toString()))).returning();
+    return result.length > 0 ? result[0] : null;
+  }
   
 }
 

@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import UserService from "./userService";
 import { User } from "./models/user";
 import userService from "./userService";
+import { MultipartFields, MultipartFile } from "@fastify/multipart";
 
 class UserController {
   async getUsers(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -38,6 +39,24 @@ class UserController {
     } catch (error) {
       console.error("Error in UserController.createUser:", error);
       reply.status(500).send({ error: "Failed to create user" });
+    }
+  }
+
+  async updateuser(req: FastifyRequest<{Body: {name: MultipartFields, profile_picture: MultipartFile}, Params: {id: number}}>, reply: FastifyReply): Promise<void> {
+    try {
+      const id: number  = req.params.id;
+      console.log(id);
+      const name = req.body.name;
+      const profile_picture = req.body.profile_picture;
+
+      const nameValue = name.value?.toString();
+
+
+      const updatedUser = await UserService.updateUser(id, nameValue!, profile_picture);
+      reply.status(200).send({status: true, message: "Updated successful!", data: updatedUser});
+    } catch (error) {
+      console.error("Error in UserController.updateUser:", error);
+      reply.status(500).send({ error: "Failed to update user" });
     }
   }
 }

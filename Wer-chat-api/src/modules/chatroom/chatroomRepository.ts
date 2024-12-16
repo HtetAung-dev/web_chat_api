@@ -12,6 +12,7 @@ import { PermissionType } from "./types/permissionType";
 import { RoomUserCreate } from "./types/roomUserCreate";
 import { ChatroomUsers } from "./models/chatroomUsers";
 import { Chatroom } from "./models/chatroom";
+import { UserType } from "../user/types/userType";
 
 class ChatroomRepository {
   async getChatroom(): Promise<ChatroomType[]> {
@@ -145,6 +146,16 @@ class ChatroomRepository {
         lastMessage: messageTable.message_content,
         isRead: messageTable.isRead,
         lastMessageTime: messageTable.createdAt,
+        participants: sql<[]>`
+        ARRAY(
+          
+          SELECT JSON_AGG(JSON_BUILD_OBJECT( 'id', ${usersTable.id}, 'name', ${usersTable.name}, 'profile_url', ${usersTable.profile_picture_url} ))
+          FROM ${usersTable} 
+          JOIN ${chatRoomUsersTable} 
+          ON ${chatRoomUsersTable.user_id} = ${usersTable.id} 
+          WHERE ${chatRoomUsersTable.chatroom_id} = ${chatroomTable.id}
+          )
+        `,
       })
       .from(chatroomTable)
       .leftJoin(

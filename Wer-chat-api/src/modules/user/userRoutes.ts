@@ -51,6 +51,7 @@ async function routes(fastify: FastifyInstance): Promise<void> {
     },
     userController.getUsers
   );
+  fastify.put("/update/:id", userController.updateuser);
 }
 
 export default routes;

@@ -14,13 +14,14 @@ import corsPlugin from "./plugins/corsPlugin";
 import config from "./config/setting";
 import socketPlugin from "./plugins/socketPlugin";
 import socketGateway from "./socket.gateway";
-import { RemoteSocket, Server, Socket } from "socket.io";
+import fastifyMultipart from "@fastify/multipart";
 
 const fastify: FastifyInstance = Fastify({
   logger: false,
 });
 
-fastify.register(corsPlugin)
+fastify.register(corsPlugin);
+fastify.register(fastifyMultipart, {attachFieldsToBody: true});
 fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET || "your-secret-key",
 });

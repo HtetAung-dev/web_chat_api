@@ -18,7 +18,7 @@ const getUserChatroomSchema = {
           lastMessage: { type: "string" },
           isRead: { type: "boolean" },
           lastMessageTime: { type: "string", format: "date-time" },
-          otherParticipants: { type: "string" },
+          participants: { type: "array" },
         },
       },
     },
