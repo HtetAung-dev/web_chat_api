@@ -1,5 +1,4 @@
 import { ContentType } from "./contentType";
-import { FlagType } from "./flagType";
 
 export type MessageType = {
     id?: number;
@@ -9,10 +8,9 @@ export type MessageType = {
     message_type: ContentType;
     createdAt: string | Date;
     isRead: boolean;
-    flags: {
-      isPinned: boolean,
-      isEdited: boolean,
-      isDeleted: boolean
-    };
+    updatedAt: string | Date;
+    isEdited: boolean;
+    isDeleted: boolean;
+    isPinned: boolean;
   };
   

@@ -13,6 +13,7 @@ import { RoomUserCreate } from "./types/roomUserCreate";
 import { ChatroomUsers } from "./models/chatroomUsers";
 import { Chatroom } from "./models/chatroom";
 import { UserType } from "../user/types/userType";
+import { permission } from "process";
 
 class ChatroomRepository {
   async getChatroom(): Promise<ChatroomType[]> {
@@ -21,7 +22,13 @@ class ChatroomRepository {
 
   async checkExistChat(senderId: number, receiverId: number): Promise<any> {
     const existingChatroom = await postgresDb
-      .select({ chatroom_id: chatRoomUsersTable.chatroom_id })
+      .select({ 
+        id: chatRoomUsersTable.chatroom_id,
+        name: chatroomTable.name,
+        type: chatroomTable.type,
+        createdAt: chatroomTable.createdAt,
+        updatedAt: chatroomTable.updatedAt,
+       })
       .from(chatRoomUsersTable)
       .innerJoin(
         chatroomTable,
@@ -33,7 +40,7 @@ class ChatroomRepository {
           inArray(chatRoomUsersTable.user_id, [senderId, receiverId]) // Check if both users exist in the chatroom
         )
       )
-      .groupBy(chatRoomUsersTable.chatroom_id) // Group by chatroom ID
+      .groupBy(chatRoomUsersTable.chatroom_id, chatroomTable.name, chatroomTable.type, chatroomTable.createdAt, chatroomTable.updatedAt) // Group by chatroom ID
       .having(eq(sql<number>`COUNT(DISTINCT ${chatRoomUsersTable.user_id})`, 2)) // Ensure both users exist in the chatroom
       .limit(1);
 
@@ -43,13 +50,11 @@ class ChatroomRepository {
   async getChatroomUsersById(roomId: number): Promise<any> {
     const result: any = await postgresDb
       .select({
-        chatroom_id: chatroomTable.id,
-        roomName: chatroomTable.name,
+        id: usersTable.id,
         user: usersTable.name,
         email: usersTable.email,
         permission: chatRoomUsersTable.permission,
         createdAt: chatRoomUsersTable.createdAt,
-        updatedAt: chatRoomUsersTable.updatedAt,
       })
       .from(chatRoomUsersTable)
       .innerJoin(
@@ -58,7 +63,7 @@ class ChatroomRepository {
       )
       .innerJoin(usersTable, eq(chatRoomUsersTable.user_id, usersTable.id))
       .where(and(eq(chatRoomUsersTable.chatroom_id, roomId)));
-    return result[0];
+    return result;
   }
 
   async createChatroom(chatroom: ChatroomType): Promise<ChatroomType> {
@@ -133,6 +138,54 @@ class ChatroomRepository {
     return result;
   }
 
+  async getChatroomDetail(
+    roomId: number
+  ): Promise<any> {
+    const chatroom = await postgresDb
+      .select({
+        chatroom_id: chatroomTable.id,
+        name: chatroomTable.name,
+        chatroomType: chatroomTable.type,
+        lastMessage: messageTable.message_content,
+        isRead: messageTable.isRead,
+        lastMessageTime: messageTable.createdAt,
+        participants: sql`
+        (
+          
+          SELECT JSON_AGG(JSON_BUILD_OBJECT( 'id', ${usersTable.id}, 'name', ${usersTable.name}, 'profile_url', ${usersTable.profile_picture_url}, 'role', ${chatRoomUsersTable.permission} ))
+          FROM ${usersTable} 
+          JOIN ${chatRoomUsersTable} 
+          ON ${chatRoomUsersTable.user_id} = ${usersTable.id} 
+          WHERE ${chatRoomUsersTable.chatroom_id} = ${chatroomTable.id}
+          )
+        `,
+      })
+      .from(chatroomTable)
+      .leftJoin(
+        messageTable,
+        and(
+          eq(chatroomTable.id, messageTable.room_id), // Join messages with chatrooms
+          sql`${messageTable.createdAt} = (
+          SELECT MAX(${messageTable.createdAt})
+          FROM ${messageTable}
+          WHERE ${messageTable.room_id} = ${chatroomTable.id}
+        )`
+        )
+      )
+      .where(
+        sql`${chatroomTable.id} IN (
+          SELECT ${chatRoomUsersTable.chatroom_id}
+          FROM ${chatRoomUsersTable}
+          WHERE ${chatRoomUsersTable.chatroom_id} = ${roomId}
+        )`
+      )
+      .limit(1);
+
+      console.log(chatroom)
+
+    return chatroom[0];
+  }
+
   async getUserChatrooms(
     userId: number,
     limit: number,
@@ -149,7 +202,7 @@ class ChatroomRepository {
         participants: sql`
         (
           
-          SELECT JSON_AGG(JSON_BUILD_OBJECT( 'id', ${usersTable.id}, 'name', ${usersTable.name}, 'profile_url', ${usersTable.profile_picture_url} ))
+          SELECT JSON_AGG(JSON_BUILD_OBJECT( 'id', ${usersTable.id}, 'name', ${usersTable.name}, 'profile_url', ${usersTable.profile_picture_url}, 'role', ${chatRoomUsersTable.permission} ))
           FROM ${usersTable} 
           JOIN ${chatRoomUsersTable} 
           ON ${chatRoomUsersTable.user_id} = ${usersTable.id} 
@@ -181,6 +234,16 @@ class ChatroomRepository {
       .offset(Number.parseInt(((page - 1) * limit).toString()));
 
     return chatrooms;
+  }
+
+  async getUserPermission(roomId: number, userId: number): Promise<ChatRoomUserType | null>{
+    const result: ChatRoomUserType[] = await postgresDb.select().from(chatRoomUsersTable).where(and(eq(chatRoomUsersTable.chatroom_id,roomId),eq(chatRoomUsersTable, userId)));
+    return result.length > 0? result[0] : null;
+  }
+
+  async updateChatroom(name: string, roomId: number): Promise<ChatroomType>{
+    const result: ChatroomType[] = await postgresDb.update(chatroomTable).set({name: name, updatedAt: new Date()}).where(eq(chatroomTable.id, roomId)).returning();
+    return result[0];
   }
 }
 export default new ChatroomRepository();

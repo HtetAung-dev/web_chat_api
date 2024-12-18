@@ -18,7 +18,8 @@ const authPlugin: FastifyPluginAsync = async (
     }
 
     try {
-      await request.jwtVerify();
+      const user = await request.jwtVerify();
+      console.log(user);
     } catch (err) {
       console.log("\n\nJWT verification failed: ", err, "\n\n");
       reply.status(401).send({ message: "Unauthorized" });

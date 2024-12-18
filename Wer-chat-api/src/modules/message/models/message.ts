@@ -1,5 +1,4 @@
 import { ContentType } from "../types/contentType";
-import { FlagType } from "../types/flagType";
 import { MessageType } from "../types/messageType";
 
 export class Message implements MessageType {
@@ -10,11 +9,10 @@ export class Message implements MessageType {
   public message_type: ContentType;
   public createdAt: string | Date;
   public isRead: boolean;
-  public flags: {
-    isPinned: boolean,
-    isEdited: boolean,
-    isDeleted: boolean
-  };
+  public updatedAt: string | Date;
+  public isEdited: boolean;
+  public isDeleted: boolean;
+  public isPinned: boolean;
 
   constructor(
     room_id: number,
@@ -22,12 +20,11 @@ export class Message implements MessageType {
     message_content: string,
     message_type: ContentType,
     createdAt: string | Date,
-    flags: {
-      isPinned: boolean,
-      isEdited: boolean,
-      isDeleted: boolean
-    },
     isRead: boolean,
+    updatedAt: string | Date,
+    isEdited: boolean,
+    isDeleted: boolean,
+    isPinned: boolean,
     id?: number
   ) {
     this.id = id;
@@ -37,7 +34,10 @@ export class Message implements MessageType {
     this.message_type = message_type;
     this.createdAt = createdAt;
     this.isRead = isRead;
-    this.flags = flags;
+    this.updatedAt = updatedAt;
+    this.isEdited = isEdited;
+    this.isDeleted = isDeleted;
+    this.isPinned = isPinned;
   }
 
   static fromMessageType(message: MessageType): Message {
@@ -49,8 +49,13 @@ export class Message implements MessageType {
       message.createdAt instanceof Date
         ? message.createdAt.toISOString()
         : message.createdAt,
-      message.flags,
       message.isRead,
+      message.updatedAt instanceof Date
+       ? message.updatedAt.toISOString()
+       : message.updatedAt,
+      message.isEdited,
+      message.isDeleted,
+      message.isPinned,
       message.id // Pass id if it exists
     );
   }

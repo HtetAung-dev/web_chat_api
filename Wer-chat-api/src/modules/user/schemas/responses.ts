@@ -40,7 +40,18 @@ const allUsersResponseSchema = {
     },
     users: {
       type: "array",
-      items: userDetailResponseSchema,
+      items: {
+        type: "object",
+        properties: {
+          id: { type: "number" },
+          name: { type: "string" },
+          email: { type: "string" },
+          profile_picture_url: { type: "string" },
+          google_id: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
     },
   },
   required: ["status", "users"],

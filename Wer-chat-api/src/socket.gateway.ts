@@ -8,6 +8,7 @@ import chatroomSocket from './modules/chatroom/chatroomSocket';
 const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
   const io = new Server(fastify.server);
   const socketToUserMap: Map<string, number> = new Map();
+  let usersInRooms: { [roomId: string]: Set<string> } = {};
   io.on('connection', (socket) => {
     socket.send("connected")
     socket.on('register', ({ userId }) => {
@@ -22,8 +23,8 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
       console.log(`Greeting socket`);
       socket.emit("message", { "text": "Helloworld!" });
     })
-
-    socket.on('join-room', async ({ roomId }, callback) => {
+    // joined rooms
+    socket.on('subscribe-rooms', async ({ roomId }, callback) => {
       if (!roomId) {
         socket.emit('error', { status: false, message: "failed to join" })
       }
@@ -33,28 +34,26 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
       socket.emit('connect-message', { status: true, "message": "user joined the room" });
     })
 
-    socket.on('get-chatroom', async ({ userId }, callback) => {
-      try {
-
-      } catch (error) {
-
-      }
-    });
     // Create room
-    socket.on('create-private-room', async ({ senderId, memberId }, callback) => {
+    socket.on('create-room', async ({ senderId, members, isPrivate, groupName }, callback) => {
       try {
-        const result = await chatroomSocket.createOrGetPrivateChat(socket, senderId, memberId);
+        if(isPrivate) {
+        const result = await chatroomSocket.createOrGetPrivateChat(socket, senderId, members);
+        } else {
+          await chatroomSocket.createGroupChat(socket, groupName, senderId, members);
+        }
       } catch (error) {
         console.log(error);
         throw Error();
       }
     });
 
-    socket.on('create-groupchat', async ({ name, creator, members }, callback) => {
+    socket.on('group-chat-name', async({ roomId, name, userId}, callback) => {
       try {
-        await chatroomSocket.createGroupChat(socket, name, creator, members);
+        await chatroomSocket.updateGroupName(socket, roomId, name, userId);
       } catch (error) {
-        fastify.log.error(error);
+        console.log(error);
+        throw Error();
       }
     })
 
@@ -67,6 +66,15 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
         fastify.log.error('Error sending message:', err);
       }
     });
+
+    // read message
+    socket.on('read-message', async({ messageId}, callback) =>{
+      try {
+        await messageSocket.readMessage(socket, messageId);
+      } catch (error) {
+        fastify.log.error('Error reading message:', error);
+      }
+    })
 
     socket.on('disconnect', () => {
       console.log(`User disconnected: ${socket.id}`);

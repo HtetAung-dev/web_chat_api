@@ -18,7 +18,10 @@ class MessageRepository {
         message_type: message.message_type,
         createdAt: new Date(message.createdAt),
         isRead: message.isRead,
-        flags: message.flags,
+        updatedAt: new Date(message.updatedAt),
+        isEdited: message.isEdited,
+        isDeleted: message.isDeleted,
+        isPinned: message.isPinned,
       })
       .returning();
     return result[0];
@@ -27,6 +30,17 @@ class MessageRepository {
   async getMessageById(messageId: number): Promise<MessageType | null> {
     const result = await postgresDb.select().from(messageTable).where(eq(messageTable.id,messageId)).limit(1);
     return result.length > 0 ? result[0] : null;
+  }
+
+  async readMessage(messageId: number): Promise<MessageType | null> {
+    const result: MessageType[] = await postgresDb
+     .update(messageTable)
+     .set({
+        isRead: true,
+      })
+     .where(eq(messageTable.id, messageId))
+     .returning();
+    return result[0];
   }
 }
 export default new MessageRepository();

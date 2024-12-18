@@ -15,6 +15,7 @@ import config from "./config/setting";
 import socketPlugin from "./plugins/socketPlugin";
 import socketGateway from "./socket.gateway";
 import fastifyMultipart from "@fastify/multipart";
+import cors from "@fastify/cors";
 
 const fastify: FastifyInstance = Fastify({
   logger: false,
@@ -27,6 +28,7 @@ fastify.register(fastifyJwt, {
 });
 fastify.register(dbClient);
 
+fastify.register(authPlugin);
 fastify.register(registerRoutes);
 fastify.register(firebaseAdminPlugin);
 fastify.register(socketGateway);

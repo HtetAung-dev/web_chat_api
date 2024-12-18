@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
-import fp from 'fastify-plugin';
 import cors from '@fastify/cors';
+import fp from 'fastify-plugin';
 import config from '../config/setting';
 
 const corsPlugin: FastifyPluginAsync = async fastify => {

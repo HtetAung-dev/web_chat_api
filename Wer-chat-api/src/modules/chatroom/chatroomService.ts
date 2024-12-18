@@ -32,9 +32,14 @@ class ChatroomService{
 
   async getOrCreatePrivateChat(senderId: number, receiverId: number): Promise<any> {
     try {
+      console.log(senderId, receiverId)
       const currentChatroom = await chatroomRepository.checkExistChat(senderId, receiverId);
+      console.log(currentChatroom);
       if (currentChatroom) {
-        return currentChatroom;
+        // const memberList = await chatroomRepository.getChatroomUsersById(currentChatroom.id!)
+        // return {status: true, chatroom: currentChatroom, members: memberList};
+        const data = await chatroomRepository.getChatroomDetail(currentChatroom.id);
+        return {status: true, chatroom: data};
       }
       const firstUser = await userRepository.getUserById(senderId);
       const secondUser = await userRepository.getUserById(receiverId);
@@ -59,8 +64,10 @@ class ChatroomService{
           console.log("chatroom created successfully");
           throw new Error("Error in joining Chatroom.");        
         }
-         roomUser = await chatroomRepository.getChatroomUsersById(newChatroom.id!)
-          return roomUser;
+          // roomUser = await chatroomRepository.getChatroomUsersById(newChatroom.id!)
+          const data = await chatroomRepository.getChatroomDetail(newChatroom.id!);
+          // return {status: true, chatroom: newChatroom, members: roomUser}
+          return {status: true, chatroom: data};
     } catch (e) {
       throw new Error("Error in creating Chatroom. Error: " + e);
     }
@@ -79,14 +86,34 @@ class ChatroomService{
 
       const joinedMembers = await chatroomRepository.addUsersToChatroom(chatroomUsers);
       if(!joinedMembers) throw new Error("Error in joining Chatroom members");
-      
-      return {status: true, chatroom: newChatroom, members: joinedMembers};
+
+      // const memberList = await chatroomRepository.getChatroomUsersById(newChatroom.id!);
+      // return {status: true, chatroom: newChatroom, members: memberList};
+
+      const data = await chatroomRepository.getChatroomDetail(newChatroom.id!);
+      return {status: true, chatroom: data};
       
     } catch (e) {
       throw new Error("Error in creating Chatroom. Error: " + e);
-    }
-    
+    }    
   }
+  // update group name
+  async updateGroupName(roomId: number, name: string, userId: number): Promise<any>{
+    try {
+      const user = await chatroomRepository.getUserPermission(roomId, userId);
+      const chatroom = await chatroomRepository.getChatroomById(roomId);
+      if (!chatroom) throw new Error("Chatroom not found");
+      if (chatroom.type!== 'group' || user?.permission !== 'admin') throw new Error("Only group admin can update group name");
+
+      const updated = await chatroomRepository.updateChatroom(name, roomId);
+      if (!updated) throw new Error("Failed to update chatroom");
+
+      return {status: true, data: updated};
+    } catch (e) {
+      throw new Error("Error in updating chatroom name. Error: " + e);
+    }
+  }
+
 }
 
 export default new ChatroomService();

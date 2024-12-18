@@ -25,14 +25,14 @@ const config = {
       //   sslMode: process.env.DIGITAL_OCEAN_POSTGRES_SSLMODE,
       // },
     },
-    // spacesObjectStorage: {
-    //   endpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ENDPOINT,
-    //   cdnEndpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_CDN_ENDPOINT,
-    //   accessKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ACCESS_KEY,
-    //   secretKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SECRET_KEY,
-    //   spaceName: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SPACE_NAME,
-    //   region: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_REGION,
-    // },
+    spacesObjectStorage: {
+      endpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ENDPOINT,
+      cdnEndpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_CDN_ENDPOINT,
+      accessKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ACCESS_KEY,
+      secretKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SECRET_KEY,
+      spaceName: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SPACE_NAME,
+      region: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_REGION,
+    },
   },
   docker: {
     managedDb: {

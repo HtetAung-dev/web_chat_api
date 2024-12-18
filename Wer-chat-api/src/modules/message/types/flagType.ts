@@ -1,1 +1,0 @@
-export type FlagType = 'edited' | 'deleted' | 'normal';

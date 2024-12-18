@@ -6,8 +6,8 @@ import AuthenticationRepository from "./authenticationRepository";
 import { UserType } from "../user/types/userType";
 
 interface JwtPayload {
+  id: number;
   email: string;
-  uid: string;
   username: string;
   type?: "refresh";
 }
@@ -37,8 +37,8 @@ class AuthenticationService {
         userId = existUser!.id!;
         // Create JWT Token
         payload = {
+          id: existUser!.id!,
           email: existUser!.email,
-          uid: existUser!.google_id,
           username: existUser!.name,
         };
       } else {
@@ -59,8 +59,8 @@ class AuthenticationService {
         userId = result!.id!;
         // Create JWT Token
         payload = {
+          id: userInfo.id,
           email: userInfo.email,
-          uid: userInfo.uid,
           username: userInfo.name,
         };
       }
@@ -94,8 +94,8 @@ class AuthenticationService {
       }
 
       const payload: JwtPayload = {
+        id: decoded.id,
         email: decoded.email,
-        uid: decoded.uid,
         username: "",
       };
 
