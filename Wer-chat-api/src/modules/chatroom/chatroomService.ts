@@ -99,12 +99,14 @@ class ChatroomService{
   }
   // update group name
   async updateGroupName(roomId: number, name: string, userId: number): Promise<any>{
+    console.log("Hello")
     try {
       const user = await chatroomRepository.getUserPermission(roomId, userId);
+      console.log(user)
       const chatroom = await chatroomRepository.getChatroomById(roomId);
       if (!chatroom) throw new Error("Chatroom not found");
       if (chatroom.type!== 'group' || user?.permission !== 'admin') throw new Error("Only group admin can update group name");
-
+      console.log(chatroom.name)
       const updated = await chatroomRepository.updateChatroom(name, roomId);
       if (!updated) throw new Error("Failed to update chatroom");
 

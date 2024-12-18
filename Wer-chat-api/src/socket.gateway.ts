@@ -9,6 +9,27 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
   const io = new Server(fastify.server);
   const socketToUserMap: Map<string, number> = new Map();
   let usersInRooms: { [roomId: string]: Set<string> } = {};
+  // authenticate sockets 
+  const authenticateSocket = (socket: Socket, next: (err?: Error) => void) => {
+    const token = socket.handshake.query.token;
+
+    if (!token) {
+      return next(new Error('Authentication error: No token provided.'));
+    }
+
+    fastify.jwt.verify(token as string, (err, decoded) => {
+      if (err) {
+        console.log('Authentication error', err.message)
+        return {status: 401, message: err.message};
+      }
+
+      (socket as any).userId = decoded.userId; // Attach the decoded userId to the socket
+      next();
+    });
+  };
+
+  io.use(authenticateSocket);
+
   io.on('connection', (socket) => {
     socket.send("connected")
     socket.on('register', ({ userId }) => {
@@ -37,8 +58,8 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
     // Create room
     socket.on('create-room', async ({ senderId, members, isPrivate, groupName }, callback) => {
       try {
-        if(isPrivate) {
-        const result = await chatroomSocket.createOrGetPrivateChat(socket, senderId, members);
+        if (isPrivate) {
+          const result = await chatroomSocket.createOrGetPrivateChat(socket, senderId, members);
         } else {
           await chatroomSocket.createGroupChat(socket, groupName, senderId, members);
         }
@@ -48,7 +69,7 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
       }
     });
 
-    socket.on('group-chat-name', async({ roomId, name, userId}, callback) => {
+    socket.on('change-groupname', async ({ roomId, name, userId }, callback) => {
       try {
         await chatroomSocket.updateGroupName(socket, roomId, name, userId);
       } catch (error) {
@@ -68,7 +89,7 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
     });
 
     // read message
-    socket.on('read-message', async({ messageId}, callback) =>{
+    socket.on('read-message', async ({ messageId }, callback) => {
       try {
         await messageSocket.readMessage(socket, messageId);
       } catch (error) {
