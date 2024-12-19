@@ -15,6 +15,7 @@ class ChatroomController {
       limit,
       page
     );
+    if(!chatrooms) return reply.status(500).send({status: false, data: []});
     return reply.status(200).send({
       status: true,
       data: chatrooms,

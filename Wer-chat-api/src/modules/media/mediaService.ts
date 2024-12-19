@@ -169,7 +169,6 @@ class MediaService {
           await s3Client.send(command);
         } catch (error) {
           fastify.log.error('Error deleting file: ', error);
-          throw new Error('Having problems in deleting file');
         }
       })
     );
@@ -189,15 +188,31 @@ class MediaService {
   
       // Ensure the file exists
       if (!getByFolderResponse.Contents || getByFolderResponse.Contents.length === 0) {
-        throw new Error(`No file found with the name ${fileName} in folder ${folderName}.`);
+        fastify.log.error(`No file found with the name ${fileName} in folder ${folderName}.`);
+        return {
+          fileName: '',
+          media: '',
+          fileExtension: ''
+        } as mediaListType;
       }
   
       const files = getByFolderResponse.Contents?.filter(file => file.Key?.endsWith(`${fileName}`)); // Assuming only one file is found
 
       if (!files || files.length === 0) {
-        throw new Error(`No file found with the name ${fileName} in folder ${folderName}.`);
+        fastify.log.error(`No file found with the name ${fileName} in folder ${folderName}.`);
+        return {
+          fileName: '',
+          media: '',
+          fileExtension: ''
+        } as mediaListType;
+
       } else if (files.length > 1) {
-        throw new Error(`Multiple files found with the name ${fileName} in folder ${folderName}.`);
+        fastify.log.error(`Multiple files found with the name ${fileName} in folder ${folderName}.`);
+        return {
+          fileName: '',
+          media: '',
+          fileExtension: ''
+        } as mediaListType;
       }
       const file = files[0];
       console.log('file',file)
@@ -228,7 +243,11 @@ class MediaService {
       } as mediaListType;
     } catch (error) {
       fastify.log.error(`Error retrieving the file: ${error}`);
-      throw new Error(`Problem retrieving the file.`);
+      return {
+        fileName: '',
+        media: '',
+        fileExtension: ''
+      } as mediaListType;
     }
   }
 

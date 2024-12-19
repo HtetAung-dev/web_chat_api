@@ -8,7 +8,11 @@ import messageService from "./messageService";
 class MessageSocket{
     async sendMessage(socket: Socket, roomId: number, senderId: number, messageContent: string, messageType: ContentType): Promise<void>{
         const message = new Message(roomId, senderId, messageContent, messageType, new Date(), false, new Date(), false, false, false);
+        console.log(message)
         const response = await messageService.sendMessage(message);
+        if(!response.status){
+            socket.emit("error", response);
+        }
         const room = roomId.toString();
 
         socket.to(room).emit('new-message', response);
@@ -21,8 +25,8 @@ class MessageSocket{
             socket.emit('error', {status: false, message: 'Failed to read message'});
             return;
         }
-        const room = response.data.room_id.toString();
-        socket.to(room).emit('message-read', response.data);
+        const room = response.data?.room_id.toString();
+        socket.to(room!).emit('message-read', response.data);
     }
 }
 

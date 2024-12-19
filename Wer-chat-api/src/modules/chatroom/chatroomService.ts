@@ -13,20 +13,23 @@ class ChatroomService{
       const chatroom: any = await chatroomRepository.getUserChatrooms(userId, limit, page);
       return chatroom;
     } catch (e) {
-      throw new Error("Error in getting Chatroom. Error: " + e);
+      console.error("Error in getting Chatroom. Error: " + e);
+      return;
     }
   }
 
-  async getChatroomById(chatroomId: number): Promise<Chatroom> {
+  async getChatroomById(chatroomId: number): Promise<Chatroom | null> {
     try {
       const chatroom: ChatroomType | null = await chatroomRepository.getChatroomById(chatroomId);
       if (chatroom) {
         return Chatroom.fromChatroomType(chatroom);
       } else {
-        throw new Error("Chatroom not found.");
+        console.error("Chatroom not found.");
+        return null
       }
     } catch (e) {
-      throw new Error("Error in getting Chatroom. Error: " + e);
+      console.error("Error in getting Chatroom. Error: " + e);
+      return null
     }
   }
 
@@ -52,7 +55,7 @@ class ChatroomService{
       var roomUser: object = []
       const newChatroom: Chatroom = await chatroomRepository.createChatroom(roomData);
       if(!newChatroom){
-        throw new Error("Error in joining Chatroom.");
+        return {status: false, message:"Error in joining Chatroom."};
       }
 
         const chatroomUsers: ChatroomUsers[] = [
@@ -62,14 +65,14 @@ class ChatroomService{
         const joinedChat = await chatroomRepository.addUsersToChatroom(chatroomUsers)
         if(!joinedChat){
           console.log("chatroom created successfully");
-          throw new Error("Error in joining Chatroom.");        
+          return {status: false, message:"Error in joining Chatroom."};        
         }
           // roomUser = await chatroomRepository.getChatroomUsersById(newChatroom.id!)
           const data = await chatroomRepository.getChatroomDetail(newChatroom.id!);
           // return {status: true, chatroom: newChatroom, members: roomUser}
           return {status: true, chatroom: data};
     } catch (e) {
-      throw new Error("Error in creating Chatroom. Error: " + e);
+      return {status: false, message: "Error in creating Chatroom. Error: " + e };
     }
     
   }
@@ -78,17 +81,15 @@ class ChatroomService{
     try {
       const groupChat: Chatroom = new Chatroom(name, 'group', new Date(), new Date());
       const newChatroom = await chatroomRepository.createChatroom(groupChat);
-      if(!newChatroom) throw new Error("chatroom created failed");
+      if(!newChatroom) return {status: false, message:"chatroom created failed"};
       const chatroomUsers: ChatroomUsers[] = [new ChatroomUsers(newChatroom.id!, creator, 'admin', new Date(), new Date())];
       members.map((member) => {
         chatroomUsers.push(new ChatroomUsers(newChatroom.id!, member, 'member', new Date(), new Date()));
       });
 
       const joinedMembers = await chatroomRepository.addUsersToChatroom(chatroomUsers);
-      if(!joinedMembers) throw new Error("Error in joining Chatroom members");
+      if(!joinedMembers) return {status: false, message: "Error in joining Chatroom members"};
 
-      // const memberList = await chatroomRepository.getChatroomUsersById(newChatroom.id!);
-      // return {status: true, chatroom: newChatroom, members: memberList};
 
       const data = await chatroomRepository.getChatroomDetail(newChatroom.id!);
       return {status: true, chatroom: data};
@@ -99,20 +100,23 @@ class ChatroomService{
   }
   // update group name
   async updateGroupName(roomId: number, name: string, userId: number): Promise<any>{
+    console.log(roomId, name, userId)
     console.log("Hello")
     try {
       const user = await chatroomRepository.getUserPermission(roomId, userId);
-      console.log(user)
+      console.log("hello", user)
+      if(!user) return {status: false, message: "User is not included in this chatroom."};
       const chatroom = await chatroomRepository.getChatroomById(roomId);
-      if (!chatroom) throw new Error("Chatroom not found");
-      if (chatroom.type!== 'group' || user?.permission !== 'admin') throw new Error("Only group admin can update group name");
+      if (!chatroom) return {status :false , message: "chatroom no found"};
+      console.log("chatroom:", chatroom)
+      if (chatroom.type!== 'group' || user?.permission !== 'admin') return {status: false, message: "Only group admin can update group name and chat type must be group"};
       console.log(chatroom.name)
       const updated = await chatroomRepository.updateChatroom(name, roomId);
-      if (!updated) throw new Error("Failed to update chatroom");
+      if (!updated) return {status: false, message: "Failed to update chatroom"};
 
       return {status: true, data: updated};
     } catch (e) {
-      throw new Error("Error in updating chatroom name. Error: " + e);
+       return {status: false, message: "Error: update failed with error"+ e};
     }
   }
 

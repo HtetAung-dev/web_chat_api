@@ -42,7 +42,7 @@ class ChatroomSocket{
         const response = await chatroomService.updateGroupName(roomId, name, userId);
 
         if(!response.status) {
-            socket.emit('error', {status: false, message: 'Could not update group name'});
+            socket.emit('error', {status: false, message: response.message});
             return;
         }
         socket.to(response.data.id.toString()).emit('updated-groupname', response);

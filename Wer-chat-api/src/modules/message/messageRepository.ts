@@ -9,6 +9,7 @@ class MessageRepository {
   }
 
   async createMessage(message: MessageType): Promise<MessageType> {
+    console.log("to create message", message);
     const result: MessageType[] = await postgresDb
       .insert(messageTable)
       .values({
@@ -16,12 +17,12 @@ class MessageRepository {
         sender_id: message.sender_id,
         message_content: message.message_content,
         message_type: message.message_type,
-        createdAt: new Date(message.createdAt),
+        createdAt: message.createdAt as Date,
         isRead: message.isRead,
-        updatedAt: new Date(message.updatedAt),
+        updatedAt: message.updatedAt as Date,
         isEdited: message.isEdited,
         isDeleted: message.isDeleted,
-        isPinned: message.isPinned,
+        isPinned: message.isPinned
       })
       .returning();
     return result[0];

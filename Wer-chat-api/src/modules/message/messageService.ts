@@ -4,10 +4,12 @@ import { MessageType } from "./types/messageType";
 import { ContentType } from "./types/contentType";
 import messageRepository from "./messageRepository";
 import { Message } from "./models/message";
+import chatroomRepository from "../chatroom/chatroomRepository";
 
 type MessageResponse = {
   status: boolean;
-  data: MessageType
+  data?: MessageType;
+  message?: string;
 }
 
 class MessageService {
@@ -22,19 +24,22 @@ class MessageService {
         await messageRepository.getChatroomMessage(roomId, limit, page);
       return message.map(Message.fromMessageType);
     } catch (e) {
-      throw new Error("Error in getting Chatroom. Error: " + e);
+      console.error(e);
+      return {status: false, message: "Error in getting Chatroom. Error: " + e};
     }
   }
 
   async sendMessage(message: MessageType) {
     try {
+      const checkUser = await chatroomRepository.getUserPermission(message.room_id, message.sender_id);
+      if(!checkUser) return {status: false, message: "User not exit in the chatroom!"}
       const newMessage = await messageRepository.createMessage(message);
       if (!newMessage) {
-        throw new Error("Error in sending message.");
+        return {status: false, message:"Message not sent" };
       }
       return { status: true, data: newMessage };
     } catch (error: any) {
-      throw new Error(error);
+      return {status: false, message:error};
     }
   }
   
@@ -42,7 +47,7 @@ class MessageService {
     try {
       const updatedMessage = await messageRepository.readMessage(messageId);
       if (!updatedMessage) {
-        throw new Error("Error in reading message.");
+        return {status: false, message: "Error in reading message."};
       }
       return {status: true, data: updatedMessage};
     } catch (error: any) {

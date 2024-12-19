@@ -105,25 +105,9 @@ class ChatroomRepository {
     return result;
   }
 
-  async getChatroomById(chatroomId: number): Promise<ChatroomType | null> {
+  async getChatroomById(chatroomId: number): Promise<any> {
     const result = await postgresDb
-      .select({
-        chatoom_id: chatroomTable.id,
-        name: chatroomTable.name,
-        type: chatroomTable.type,
-        createdAt: chatroomTable.createdAt,
-        updatedAt: chatroomTable.updatedAt,
-        participants: sql<[]>`
-        CASE
-          WHEN chatroomTable.type = 'group' THEN (
-          SELECT (${usersTable.id} as user_id, ${usersTable.name} as user_name, ${chatRoomUsersTable.permission} as permission)
-          FROM ${chatRoomUsersTable}
-          JOIN ${usersTable} ON ${chatRoomUsersTable.user_id} = ${usersTable.id}
-          WHERE ${chatRoomUsersTable.chatroom_id} = ${chatroomId}
-          )
-          ELSE NULL
-        `,
-      })
+      .select()
       .from(chatroomTable)
       .where(eq(chatroomTable.id, chatroomId))
       .limit(1);
@@ -237,7 +221,7 @@ class ChatroomRepository {
   }
 
   async getUserPermission(roomId: number, userId: number): Promise<ChatRoomUserType | null>{
-    const result: ChatRoomUserType[] = await postgresDb.select().from(chatRoomUsersTable).where(and(eq(chatRoomUsersTable.chatroom_id,roomId),eq(chatRoomUsersTable, userId)));
+    const result: ChatRoomUserType[] = await postgresDb.select().from(chatRoomUsersTable).where(and(eq(chatRoomUsersTable.chatroom_id,roomId),eq(chatRoomUsersTable.user_id, userId)));
     return result.length > 0? result[0] : null;
   }
 

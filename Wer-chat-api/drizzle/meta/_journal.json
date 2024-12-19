@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1734177100385,
-      "tag": "0000_initialized_db",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1734492477910,
-      "tag": "0001_acoustic_scrambler",
+      "when": 1734587431614,
+      "tag": "0000_overjoyed_longshot",
       "breakpoints": true
     }
   ]

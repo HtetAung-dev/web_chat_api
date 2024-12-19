@@ -1,5 +1,5 @@
 {
-  "id": "ebdb8e26-d77b-47d9-aaaf-cf0dc4c8a39a",
+  "id": "756672da-690f-4fae-8785-351f046dee3c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -201,8 +201,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "room_id": {
+          "name": "room_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -240,11 +240,33 @@
           "notNull": true,
           "default": false
         },
-        "flags": {
-          "name": "flags",
-          "type": "jsonb",
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
+        },
+        "isEdited": {
+          "name": "isEdited",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "isDeleted": {
+          "name": "isDeleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "isPinned": {
+          "name": "isPinned",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         }
       },
       "indexes": {},
