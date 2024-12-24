@@ -28,6 +28,31 @@ class MessageSocket{
         const room = response.data?.room_id.toString();
         socket.to(room!).emit('message-read', response.data);
     }
+
+    async editMessage(socket: Socket, messageId: number, message: string) {
+        const response = await messageService.editMessage(messageId, message);
+        console.log("get message is response", response);
+        if (!response.status) {
+          socket.emit("error", {
+            status: false,
+            message: "Failed to edit message",
+          });
+          return;
+        }
+        const room = response.data?.room_id.toString();
+        socket.to(room!).emit("edit-message", response.data);
+        socket.emit("edit-message", response);
+    }
+
+    async getCallData(socket: Socket, roomId: number){
+        const response = await messageService.getCallData(roomId);
+        if(!response?.status){
+            socket.emit('error', response);
+            return;
+        }
+        socket.to(roomId.toString()).emit('incoming-call', response);
+      }
+      
 }
 
 export default new MessageSocket();

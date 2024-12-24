@@ -1,1 +1,1 @@
-export type ContentType = 'text' | 'image' | 'video';
+export type ContentType = 'text' | 'image' | 'video' | 'calllog';

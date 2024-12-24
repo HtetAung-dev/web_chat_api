@@ -105,8 +105,51 @@ const socketGateway: FastifyPluginCallback = (fastify, opts, done) => {
       } catch (error) {
         fastify.log.error('Error reading message:', error);
       }
+    });
+
+     // edit message
+     socket.on("edit-message", async ({ messageId, message }, callback) => {
+      try {
+        await messageSocket.editMessage(socket, messageId, message);
+      } catch (error) {
+        fastify.log.error("Error reading message:", error);
+      }
+    });
+
+    // webRTC for video call
+    socket.on('call-start', async(data, callback) => {
+      const {roomId, roomType} = data;
+      try {
+        await messageSocket.getCallData(socket, roomId);
+      } catch (error) {
+        fastify.log.error("Error getting call data:", error);
+      }    
     })
 
+    socket.on('offer', async(data, callback) => {
+      const {offer, roomId} = data;
+      console.log(`Received offer for room: ${roomId}`);
+      socket.to(roomId).emit('offer', offer);
+    });
+
+    socket.on('answer', async(data, callback) => {
+      const {answer, roomId} = data;
+      console.log(`Received answer for room: ${roomId}`);
+      socket.to(roomId).emit('answer', answer);
+    });
+
+    socket.on('ice-candidate', async(data, callback) => {
+      const {candidate, roomId} = data;
+      console.log(`Received ice candidate for room: ${roomId}`);
+      socket.to(roomId).emit('ice-candidate', candidate);
+    });
+
+    socket.on('hangup', (room) => {
+      console.log(`Hangup in room ${room}`);
+      socket.to(room).emit('call-ended');
+    });
+    
+    // disconnect from server 
     socket.on('disconnect', () => {
       console.log(`User disconnected: ${socket.id}`);
     });

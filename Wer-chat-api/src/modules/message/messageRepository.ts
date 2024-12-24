@@ -43,5 +43,21 @@ class MessageRepository {
      .returning();
     return result[0];
   }
+  
+  async editMessage(
+    messageId: number,
+    message: string
+  ): Promise<MessageType | null> {
+    const result: MessageType[] = await postgresDb
+      .update(messageTable)
+      .set({
+        isEdited: true,
+        message_content: message,
+        updatedAt: new Date(),
+      })
+      .where(eq(messageTable.id, messageId))
+      .returning();
+    return result[0];
+  }
 }
 export default new MessageRepository();

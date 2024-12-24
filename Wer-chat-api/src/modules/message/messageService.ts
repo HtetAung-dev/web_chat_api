@@ -54,6 +54,33 @@ class MessageService {
       throw new Error(error);
     }
   }
+
+  async editMessage(
+    messageId: number,
+    message: string
+  ): Promise<MessageResponse> {
+    try {
+      const updatedMessage = await messageRepository.editMessage(
+        messageId,
+        message
+      );
+      if (!updatedMessage) {
+        return { status: false, message: "Error in editing message." };
+      }
+      return { status: true, data: updatedMessage };
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  }
+
+  async getCallData(roomId: number): Promise<any>{
+    
+      const callData = await chatroomRepository.getChatroomById(roomId);
+      if (!callData) {
+        return {status: false, message: "Error in getting call data."};
+      }
+      return { status :true, message: "Retrieved call data", data: callData};
+  }
 }
 
 export default new MessageService();
