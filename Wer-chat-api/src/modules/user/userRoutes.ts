@@ -9,22 +9,27 @@ import { getUserQuerySchema } from "./schemas/params";
 const TAGS: string[] = ["/users"];
 
 async function routes(fastify: FastifyInstance): Promise<void> {
-  //   fastify.get(
-  //     "/detail",
-  //     {
-  //       schema: {
-  //         tags: TAGS,
-  //         querystring: getUserQuerySchema,
-  //         response: {
-  //           200: userDetailResponseSchema,
-  //           404: userNotFoundResponseSchema,
-  //           204: userDeleteSuccessResponseSchema,
-  //         },
-  //       },
-  //       // onRequest: [fastify.authenticate],
-  //     },
-  //     userController.getUserById
-  //   );
+    fastify.get(
+      "/detail/:id",
+      {
+        schema: {
+          tags: TAGS,
+          response: {
+            200: userDetailResponseSchema,
+            500: {
+              type: "object",
+              properties: {
+                status: { type: "boolean" },
+                error: { type: "string" },
+              },
+              required: ["status", "error"],
+            },
+          },
+        },
+        // onRequest: [fastify.authenticate],
+      },
+      userController.getUserById
+    );
 
   fastify.get(
     "/",
@@ -46,6 +51,7 @@ async function routes(fastify: FastifyInstance): Promise<void> {
     },
     userController.getUsers
   );
+  fastify.put("/update/:id", userController.updateuser);
 }
 
 export default routes;

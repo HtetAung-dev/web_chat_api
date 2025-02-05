@@ -1,0 +1,1 @@
+export type RoomTypes = 'private' | 'group';

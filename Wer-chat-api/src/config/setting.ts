@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 
-dotenv.config({ path: path.resolve(__dirname, "../../config/chat/dev.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../config/chat.dev.env") });
 
 const config = {
   digitalOcean: {
@@ -9,7 +9,7 @@ const config = {
       postgreSql: {
         databaseUrl: process.env.POSTGRES_URL,
         host: process.env.POSTGRES_HOST,
-        user: process.env.POSTGERS_USER,
+        user: process.env.POSTGRES_USER,
         password: process.env.POSTGRES_PASSWORD,
         database: process.env.POSTGRES_DB,
         port: process.env.POSTGRES_PORT,
@@ -25,21 +25,21 @@ const config = {
       //   sslMode: process.env.DIGITAL_OCEAN_POSTGRES_SSLMODE,
       // },
     },
-    // spacesObjectStorage: {
-    //   endpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ENDPOINT,
-    //   cdnEndpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_CDN_ENDPOINT,
-    //   accessKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ACCESS_KEY,
-    //   secretKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SECRET_KEY,
-    //   spaceName: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SPACE_NAME,
-    //   region: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_REGION,
-    // },
+    spacesObjectStorage: {
+      endpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ENDPOINT,
+      cdnEndpoint: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_CDN_ENDPOINT,
+      accessKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_ACCESS_KEY,
+      secretKey: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SECRET_KEY,
+      spaceName: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_SPACE_NAME,
+      region: process.env.DIGITAL_OCEAN_SPACES_OBJECT_STORAGE_REGION,
+    },
   },
   docker: {
     managedDb: {
       postgreSql: {
         databaseUrl: process.env.POSTGRES_URL,
         host: process.env.POSTGRES_HOST,
-        user: process.env.POSTGERS_USER,
+        user: process.env.POSTGRES_USER,
         password: process.env.POSTGRES_PASSWORD,
         database: process.env.POSTGRES_DB,
         port: process.env.POSTGRES_PORT,

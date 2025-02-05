@@ -2,23 +2,31 @@ const userDetailResponseSchema = {
   type: "object",
   description: "User detail",
   properties: {
-    id: { type: "number" },
-    name: { type: "string" },
-    email: { type: "string" },
-    profile_picture_url: { type: "string" },
-    google_id: { type: "string" },
-    createdAt: { type: "string", format: "date-time" },
-    updatedAt: { type: "string", format: "date-time" },
-  },
-  required: [
-    "id",
-    "name",
-    "email",
-    "profile_picture_url",
-    "google_id",
-    "createdAt",
-    "updatedAt",
-  ],
+    status: {
+      type: "boolean",
+    },
+    data: {
+      type: "object",
+      properties: {
+        id: { type: "number" },
+        name: { type: "string" },
+        email: { type: "string" },
+        profile_picture_url: { type: "string" },
+        google_id: { type: "string" },
+        createdAt: { type: "string", format: "date-time" },
+        updatedAt: { type: "string", format: "date-time" },
+      },
+      required: [
+        "id",
+        "name",
+        "email",
+        "profile_picture_url",
+        "google_id",
+        "createdAt",
+        "updatedAt",
+      ],
+    }
+  }, required: ["status", "data"]
 };
 
 const allUsersResponseSchema = {
@@ -32,7 +40,18 @@ const allUsersResponseSchema = {
     },
     users: {
       type: "array",
-      items: userDetailResponseSchema,
+      items: {
+        type: "object",
+        properties: {
+          id: { type: "number" },
+          name: { type: "string" },
+          email: { type: "string" },
+          profile_picture_url: { type: "string" },
+          google_id: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
+        },
+      },
     },
   },
   required: ["status", "users"],

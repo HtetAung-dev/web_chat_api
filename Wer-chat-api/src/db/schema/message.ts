@@ -7,19 +7,26 @@ import {
     varchar,
     index,
     integer,
+    pgEnum,
+    boolean,
+    jsonb,
   } from "drizzle-orm/pg-core";
-  
-  export const message = pgTable(
-    "users",
+import { ContentType } from "../../modules/message/types/contentType";
+
+  export const messageTable = pgTable(
+    "message",
     {
       id: serial("id").primaryKey(),
-      room_id: integer("name").notNull(),
+      room_id: integer("room_id").notNull(),
       sender_id: integer("sender_id").notNull(),
-      message_content: text("message_content"),
-      message_type: text("message_type").notNull().default(""),
+      message_content: text("message_content").notNull(),
+      message_type: varchar("message_type", {length: 25}).$type<ContentType>().default('text').notNull(),
       createdAt: timestamp("created_at").notNull().defaultNow(),
-      isRead: timestamp("updated_at").notNull().defaultNow(),
-      flags: text("flags")
+      isRead: boolean("isRead").default(false).notNull(),
+      updatedAt: timestamp("updated_at").notNull().defaultNow(),
+      isEdited: boolean("isEdited").default(false).notNull(),
+      isDeleted: boolean("isDeleted").default(false).notNull(),
+      isPinned: boolean("isPinned").default(false).notNull()
     },
     (table) => ({
     })
